@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Dice</string>
+    <string name="roll_once_text">0</string>
+    <string name="roll_twice_text">0</string>
+    <string name="roll_once_button">ROLL ONCE</string>
+    <string name="roll_twice_button">ROLL TWICE</string>
+    <string name="add_custom_die">ADD</string>
+    <string name="custom_die_text">Custom Die</string>
+</resources>
