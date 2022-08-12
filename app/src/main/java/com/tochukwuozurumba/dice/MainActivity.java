@@ -5,16 +5,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -81,9 +78,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        //        instanstiate Die class
-        Log.d("select", String.valueOf(selectedSpinnerOption));
-        dice = new Die(selectedSpinnerOption);
 
 //        history
         diceHistoryListArray = new ArrayList<>();
@@ -127,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         int viewId = v.getId();
-
+        dice = new Die(selectedSpinnerOption);
         switch (viewId) {
             case R.id.custom_die_button:
                 addCustomDie();
@@ -147,6 +141,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        add to custom die to list
         spinnerList.add(getCustomDieValue);
 
+//        sort array
+        Collections.sort(spinnerList);
+
 //        notify adapter that the list has been updated
         spinnerAdapter.notifyDataSetChanged();
 
@@ -160,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rollTwiceDisplay.setVisibility(View.GONE);
 
 //        update history
-        diceHistoryListArray.add(dice.getDiceName());
+        addDiceName();
         historyAdapter.notifyDataSetChanged();
     }
 
@@ -171,18 +168,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 //        display first value
         rollOnceDisplay.setText(String.valueOf(dice.getSideUp()));
-        diceHistoryListArray.add(0, dice.getDiceName());
+        addDiceName();
 
 //        roll for second value
         dice.rollDice();
 
 //        display second value
         rollTwiceDisplay.setText(String.valueOf(dice.getSideUp()));
-        diceHistoryListArray.add(dice.getDiceName());
+        addDiceName();
         historyAdapter.notifyDataSetChanged();
     }
 
 
+    private void addDiceName() {
+        diceHistoryListArray.add(0, dice.getDiceName());
+    }
 
 //    private void saveData(){
 //        SharedPreferences.Editor editor = prefs.edit();

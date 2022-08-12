@@ -26,7 +26,7 @@ public class Die {
     }
 
     public void rollDice() {
-        sideUp = (int) (Math.random() * diceSides) + 1;
+        sideUp = (int) ((Math.random()) * diceSides) + 1;
         setDiceName("d" + sideUp);
         Log.d("die sideup", String.valueOf(sideUp));
         Log.d("die number", String.valueOf(diceSides));
