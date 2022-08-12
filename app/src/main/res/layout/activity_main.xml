@@ -103,7 +103,7 @@
             android:autofillHints=""
             android:hint="@string/custom_die_text"
             android:inputType="number"
-            android:textColorHint="#546E7A"
+            android:textColorHint="#000"
             android:textStyle="italic" />
 
         <Button

@@ -3,7 +3,6 @@ package com.tochukwuozurumba.dice;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -15,14 +14,18 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     //    declare global variables
     private Spinner spinner;
-    private String another;
     private Button customDieButton;
     private Button rollButtonOnce;
     private Button rollButtonTwice;
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView rollTwiceDisplay;
     private EditText customDieInput;
     private ArrayAdapter<Integer> spinnerAdapter;
+    private ArrayList<Integer> formattedArray;
     private Integer getCustomDieValue;
     private ArrayList<Integer> spinnerList;
     private SharedPreferences prefs;
@@ -38,14 +42,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayAdapter<String> historyAdapter;
     private ArrayList<String> diceHistoryListArray;
     private ListView diceHistoryDisplay;
+    private Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        gson = new Gson();
+
 //        shared preferences
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = this.getSharedPreferences("Data_Save", this.MODE_PRIVATE);
 
 //        define variables
         spinner = findViewById(R.id.spinner);
@@ -60,13 +67,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         customDieButton.setOnClickListener(this);
         rollButtonOnce.setOnClickListener(this);
         rollButtonTwice.setOnClickListener(this);
-
-//        get spinner
-        spinnerList = new ArrayList<Integer>();
-        spinnerList.add(2);
-        spinnerList.add(4);
-        spinnerList.add(6);
-        spinnerList.add(8);
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -89,29 +89,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume(){
         super.onResume();
 
-//        Log.d("interger", String.valueOf(prefs.getInt("iniii", Integer.parseInt(""))));
-//        String stringSpinnerList = prefs.getString("prefs_spinner_list", "");
-//        Log.d("onResume", stringSpinnerList);
+        spinnerList = new ArrayList<Integer>();
+        String stringSpinnerList = prefs.getString("spinnerList", "");
 
-
+//        convert string to an array of integers;
+        spinnerList = formatArray(stringSpinnerList);
         spinnerAdapter = new ArrayAdapter<>(this, android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item, spinnerList);
         spinner.setAdapter(spinnerAdapter);
     }
 
-//    protected void onPause() {
-//        saveData();
-//        Log.d("Pause", "App is paused");
-//        super.onPause();
-//    }
-//
-//    protected void onStop() {
-//        saveData();
-//        super.onStop();
-//    }
-//    protected void onDestroy() {
-//        saveData();
-//        super.onDestroy();
-//    }
+    protected void onPause() {
+        saveData();
+        Log.d("Pause", "App is paused");
+        super.onPause();
+    }
+
+    protected void onStop() {
+        saveData();
+        super.onStop();
+    }
+
+    protected void onDestroy() {
+        saveData();
+        super.onDestroy();
+    }
 
     /**
      * Called when a view has been clicked.
@@ -152,7 +153,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void rollOnce() {
-        Log.d("select", String.valueOf(selectedSpinnerOption));
         rollOnceDisplay.setText(String.valueOf(dice.getSideUp()));
         rollTwiceDisplay.setVisibility(View.GONE);
 
@@ -162,7 +162,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void rollTwice() {
-        Log.d("select", String.valueOf(selectedSpinnerOption));
 //        set visibility true
         if (rollTwiceDisplay.getVisibility() == View.GONE) { rollTwiceDisplay.setVisibility(View.VISIBLE); }
 
@@ -184,11 +183,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         diceHistoryListArray.add(0, dice.getDiceName());
     }
 
-//    private void saveData(){
-//        SharedPreferences.Editor editor = prefs.edit();
-//        editor.putInt("iniii", 4);
-//        Log.d("saveData", String.valueOf(spinnerList));
-//        editor.putString("prefs_spinner_list", String.valueOf(spinnerList));
-//        editor.apply();
-//    }
+    private void saveData() {
+        String json = gson.toJson(spinnerList);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("spinnerList", json);
+        editor.commit();
+    }
+
+    private ArrayList<Integer> formatArray(String stringArray) {
+        if (stringArray.isEmpty() || stringArray == "") {
+            spinnerList.add(2);
+            spinnerList.add(4);
+            spinnerList.add(6);
+            spinnerList.add(8);
+        } else {
+            Type type = new TypeToken<List<String>>() {}.getType();
+            List<String> spinnerArr = gson.fromJson(stringArray, type);
+
+            for (String num : spinnerArr) {
+                spinnerList.add(Integer.parseInt(num));
+            }
+        }
+
+        return spinnerList;
+    }
 }
